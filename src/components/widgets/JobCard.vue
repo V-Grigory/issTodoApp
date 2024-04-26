@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { JobCardProps } from "@/types/Job";
+import { StatusJob } from "@/types/Job";
 
 interface Props {
   cardFields: JobCardProps;
@@ -15,7 +16,7 @@ defineProps<Props>();
     </template>
 
     <template v-slot:subtitle>
-      {{ cardFields.status }}
+      {{ StatusJob[cardFields.status] }}
     </template>
   </v-card>
 </template>
