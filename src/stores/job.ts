@@ -2,10 +2,12 @@ import { acceptHMRUpdate, defineStore } from "pinia";
 
 import type { Job } from "@/types/Job";
 import { useStorageService } from "@/services/useStorageService";
-import { useNotifications } from "@/services/useNotifications";
 
 const storageService = useStorageService();
-const notifications = useNotifications();
+
+const getClonedJobs = (jobs: Job[]): Job[] => {
+  return jobs.map((job: Job) => ({ ...job }));
+};
 
 export const useJobStore = defineStore({
   id: "job",
@@ -20,14 +22,42 @@ export const useJobStore = defineStore({
 
   actions: {
     async fetchJobs(): void {
-      try {
-        this._jobs = await storageService.getJobs();
-      } catch (e: any) {
-        notifications.error(e.message);
-        console.log("== error ==")
-        console.log(e);
-      }
-    }
+      this._jobs = await storageService.getJobs();
+    },
+
+    async addJob(dataJob: Job): void {
+      const clonedJobs: Job[] = getClonedJobs(this.jobs);
+
+      clonedJobs.push({
+        id: Date.now(),
+        ...dataJob
+      });
+
+      await storageService.saveJobs(clonedJobs);
+      this._jobs = clonedJobs;
+    },
+
+    async updateJob(dataJob: Job): void {
+      const clonedJobs: Job[] = getClonedJobs(this.jobs);
+
+      const job: Job = clonedJobs.find((job: Job) => job.id === dataJob.id);
+      job.title = dataJob.title;
+      job.description = dataJob.description;
+      job.status = dataJob.status;
+      job.priority = dataJob.priority;
+
+      await storageService.saveJobs(clonedJobs);
+      this._jobs = clonedJobs;
+    },
+
+    async deleteJobsByIds(jobIds: number[]): void {
+      let clonedJobs: Job[] = getClonedJobs(this.jobs);
+
+      clonedJobs = clonedJobs.filter((job: Job) => !jobIds.includes(job.id));
+
+      await storageService.saveJobs(clonedJobs);
+      this._jobs = clonedJobs;
+    },
   }
 });
 

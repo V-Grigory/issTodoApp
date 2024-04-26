@@ -4,11 +4,12 @@ export enum StatusJob {
 }
 
 export enum PriorityJob {
-  HIGHT = "hight",
-  LOW = "low",
+  HIGHT = "Высокий",
+  LOW = "Низкий",
 }
 
 export type Job = {
+  id?: number;
   title: string;
   description: string;
   status: StatusJob;
@@ -20,3 +21,5 @@ export type ServiceStorage = {
 }
 
 export type JobCardProps = Pick<Job, "title" | "status">
+
+export type JobFormData = Job | {}
